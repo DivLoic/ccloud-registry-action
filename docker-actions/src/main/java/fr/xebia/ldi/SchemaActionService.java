@@ -2,6 +2,7 @@ package fr.xebia.ldi;
 
 import com.jasongoodwin.monads.Try;
 import com.jasongoodwin.monads.TrySupplier;
+import com.sun.tools.javac.util.Pair;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
@@ -17,6 +18,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -29,7 +32,6 @@ public class SchemaActionService {
 
     private Yaml yaml;
     private Config config;
-    private Schema.Parser parser;
     private SchemaRegistryClient client;
 
     private Logger logger = LoggerFactory.getLogger(SchemaActionService.class);
@@ -37,7 +39,6 @@ public class SchemaActionService {
     public SchemaActionService(Config config) {
         this.config = config;
         this.setClient();
-        this.setParse();
     }
 
     public Yaml getYaml() {
@@ -46,15 +47,6 @@ public class SchemaActionService {
                 .orElseGet(() -> {
                     this.setYaml();
                     return this.yaml;
-                });
-    }
-
-    public Schema.Parser getParser() {
-        return Optional
-                .ofNullable(this.parser)
-                .orElseGet(() -> {
-                    this.setParse();
-                    return this.parser;
                 });
     }
 
@@ -67,13 +59,14 @@ public class SchemaActionService {
                 });
     }
 
+    public Schema.Parser getParser() {
+        return new Schema.Parser();
+    }
+
     public void setYaml() {
         this.yaml = new Yaml(new Constructor(SchemaList.class));
     }
 
-    public void setParse() {
-        this.parser = new Schema.Parser();
-    }
 
     public void setClient() {
         this.client = new CachedSchemaRegistryClient(
@@ -83,16 +76,12 @@ public class SchemaActionService {
                         .entrySet()
                         .stream()
                         .collect(Collectors.toMap(
-                                Map.Entry::getKey,
-                                (Map.Entry<String, ConfigValue> pair) -> this.config
+                                Entry::getKey,
+                                (Entry<String, ConfigValue> pair) -> this.config
                                         .getString(String.format("schema.registry.config.%s", pair.getKey()))
                                 )
                         )
         );
-    }
-
-    public void setParser(Schema.Parser parser) {
-        this.parser = parser;
     }
 
     public void setClient(SchemaRegistryClient client) {
@@ -103,19 +92,62 @@ public class SchemaActionService {
         return predicate.negate();
     }
 
-    public Try<Stream<Schema>> parseAll(Stream<File> files) {
-        Stream<Try<Schema>> tryStream = files.map((file) -> Try.ofFailable(() -> getParser().parse(file)));
-
-        return tryStream.allMatch(Try::isSuccess)
-                ? Try.ofFailable(() -> tryStream.map(Try::getUnchecked))
-                : Try.failure(new Exception("Fail to parse some schema files"));
+    public List<Pair<String, File>> mapSubjectToFile(List<SchemaList.SubjectEntry> subjects) {
+        return subjects.stream().map((subject) ->
+                Pair.of(
+                        subject.getSubject(),
+                        new File(config.getString("avro.files.path"), subject.getFile())
+                )
+        ).collect(Collectors.toList());
     }
 
-    public Map.Entry<String, File> mapSubjectToFile(SchemaList.SubjectEntry subject) {
-        return new AbstractMap.SimpleEntry<>(
-                subject.getSubject(),
-                new File(config.getString("avro.files.path") , subject.getFile())
-        );
+    private <T> Supplier<Stream<T>> supply(List<T> list) {
+        return list::stream;
+    }
+
+
+    public Try<Pair<String, Schema>> parseOne(Pair<String, File> file) {
+        return Try.ofFailable(() -> Pair.of(file.fst, getParser().parse(file.snd)));
+    }
+
+    public Try<List<Pair<String, Schema>>> parseAll(List<Pair<String, File>> files) {
+        List<Try<Pair<String, Schema>>> collected = files
+                .stream()
+                .map(this::parseOne)
+                .collect(Collectors.toList());
+
+        Try<Stream<Pair<String, Schema>>> t = collected.stream().allMatch(Try::isSuccess)
+                ? Try.ofFailable(() -> collected.stream().map(Try::getUnchecked))
+                : Try.failure(new Exception("Fail to parse some schema files"));
+
+        return t.map((stream) -> stream.collect(Collectors.toList()));
+    }
+
+    public Try<Pair<String, Boolean>> testOne(Pair<String, Schema> schema) {
+        return Try.ofFailable(() -> Pair.of(schema.fst, getClient().testCompatibility(schema.fst, schema.snd)));
+    }
+
+    public Try<List<Pair<String, Boolean>>> testAllCompatibilities(List<Pair<String, Schema>> schemas) {
+        List<Try<Pair<String, Boolean>>> collected = schemas
+                .stream()
+                .map(this::testOne)
+                .collect(Collectors.toList());
+
+        Try<Stream<Pair<String, Boolean>>> t = collected.stream().allMatch(Try::isSuccess)
+                ? Try.ofFailable(() -> collected.stream().map(Try::getUnchecked))
+                : Try.failure(new Exception("Fail to test schema files compatibility"));
+
+        return t.map((stream) -> stream.collect(Collectors.toList()));
+    }
+
+    public <T, U> Try<Stream<T>> travers(List<Try<T>> tries) {
+
+        Try<Stream<T>> t = tries.stream().allMatch(Try::isSuccess)
+                ? Try.ofFailable(() -> tries.stream().map(Try::getUnchecked))
+                : Try.failure(new Exception("Fail to test schema files compatibility"));
+
+        return null;
+
     }
 
     public Try<List<SchemaList.SubjectEntry>> triedSubjectList() {
