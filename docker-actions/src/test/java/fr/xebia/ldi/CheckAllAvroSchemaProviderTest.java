@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Created by loicmdivad.
  */
-public class CheckAllAvroSchemaTestProvider extends ActionTestProvider {
+public class CheckAllAvroSchemaProviderTest extends ActionProviderTest {
 
     RegistryActionFunction service;
 
@@ -49,7 +49,7 @@ public class CheckAllAvroSchemaTestProvider extends ActionTestProvider {
         );
 
         Try<List<KeyValuePair<String, Boolean>>> triedSubjectValidationPairs =
-                service.testAllCompatibilities(subjectSchemaPairs);
+                service.testAll(subjectSchemaPairs);
 
         assertTrue(triedSubjectValidationPairs.isSuccess());
         assertTrue(triedSubjectValidationPairs.getUnchecked().get(0).value);
@@ -63,7 +63,7 @@ public class CheckAllAvroSchemaTestProvider extends ActionTestProvider {
         List<KeyValuePair<String, Schema>> emptySubjectSchemaPairs = Collections.emptyList();
 
         Try<List<KeyValuePair<String, Boolean>>> triedSubjectValidationPairs =
-                service.testAllCompatibilities(emptySubjectSchemaPairs);
+                service.testAll(emptySubjectSchemaPairs);
 
         assertTrue(triedSubjectValidationPairs.isSuccess());
         assertTrue(triedSubjectValidationPairs.getUnchecked().isEmpty());
@@ -86,7 +86,7 @@ public class CheckAllAvroSchemaTestProvider extends ActionTestProvider {
         );
 
         Try<List<KeyValuePair<String, Boolean>>> triedSubjectValidationPairs =
-                service.testAllCompatibilities(subjectSchemaPairs);
+                service.testAll(subjectSchemaPairs);
 
         assertTrue(triedSubjectValidationPairs.isSuccess());
         assertTrue(triedSubjectValidationPairs.getUnchecked().get(0).value);

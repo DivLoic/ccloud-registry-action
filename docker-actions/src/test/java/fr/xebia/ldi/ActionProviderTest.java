@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * Created by loicmdivad.
  */
-public abstract class ActionTestProvider {
+public abstract class ActionProviderTest {
 
     protected File fileFromResource(String name) {
         return new File(Objects.requireNonNull(getClass().getClassLoader().getResource(name)).getPath());

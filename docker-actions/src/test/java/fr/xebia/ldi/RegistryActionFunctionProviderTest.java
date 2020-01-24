@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Created by loicmdivad.
  */
-class RegistryActionFunctionTestProvider extends ActionTestProvider {
+class RegistryActionFunctionProviderTest extends ActionProviderTest {
 
     RegistryActionFunction service;
 
@@ -40,8 +40,8 @@ class RegistryActionFunctionTestProvider extends ActionTestProvider {
     }
 
     @Test
-    void tryLoadingSubjectsShouldLoadExistingFile() throws IOException {
-        Try<FileInputStream> triedInputStream = service.tryLoadingSubjects();
+    void tryStreamFileSubjectsShouldLoadExistingFile() throws IOException {
+        Try<FileInputStream> triedInputStream = service.tryStreamFileSubjects();
 
         assertTrue(triedInputStream.isSuccess());
 
@@ -52,14 +52,14 @@ class RegistryActionFunctionTestProvider extends ActionTestProvider {
     }
 
     @Test
-    void tryLoadingSubjectsShouldFailOnMissingFile() {
+    void tryStreamFileSubjectsShouldFailOnMissingFile() {
         Config config = ConfigFactory
                 .parseResources("application-test.conf")
                 .withValue("avro.subjects.yaml", ConfigValueFactory.fromAnyRef("/totally/fake/path/to.yaml"));
 
         service = new RegistryActionFunction(config);
 
-        Try<FileInputStream> triedInputStream = service.tryLoadingSubjects();
+        Try<FileInputStream> triedInputStream = service.tryStreamFileSubjects();
 
         assertFalse(triedInputStream.isSuccess());
         triedInputStream

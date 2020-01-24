@@ -85,8 +85,19 @@ public class RegistryActionFunction {
         );
     }
 
-    public static <R> Predicate<R> not(Predicate<R> predicate) {
-        return predicate.negate();
+    public Try<FileInputStream> tryStreamFileSubjects() {
+        File file = new File(this.config.getString("avro.subjects.yaml"));
+
+        return Try
+                .ofFailable(() ->  new FileInputStream(file))
+                .onFailure((t) -> logger.error("Fail to load the yaml file, it may not exist.", t));
+    }
+
+    public Try<List<SchemaList.SubjectEntry>> parseYaml(FileInputStream input) {
+        return Try
+                .ofFailable(() -> (SchemaList) getYaml().load(input))
+                .onFailure((t) -> logger.error("Fail to parse the yaml file, it may be corrupted", t))
+                .map(SchemaList::getSchemas);
     }
 
     public List<KeyValuePair<String, File>> mapSubjectToFile(List<SchemaList.SubjectEntry> subjects) {
@@ -99,12 +110,12 @@ public class RegistryActionFunction {
                 .collect(Collectors.toList());
     }
 
-    public Try<KeyValuePair<String, Schema>> parseOne(KeyValuePair<String, File> file) {
-        return Try.ofFailable(() -> pair(file.key, getParser().parse(file.value)));
+    public Try<KeyValuePair<String, Schema>> parseOne(KeyValuePair<String, File> subjectFilePair) {
+        return Try.ofFailable(() -> pair(subjectFilePair.key, getParser().parse(subjectFilePair.value)));
     }
 
-    public Try<List<KeyValuePair<String, Schema>>> parseAll(List<KeyValuePair<String, File>> files) {
-        List<Try<KeyValuePair<String, Schema>>> collected = files
+    public Try<List<KeyValuePair<String, Schema>>> parseAll(List<KeyValuePair<String, File>> subjectFilePairs) {
+        List<Try<KeyValuePair<String, Schema>>> collected = subjectFilePairs
                 .stream()
                 .map(this::parseOne)
                 .collect(Collectors.toList());
@@ -112,15 +123,15 @@ public class RegistryActionFunction {
         return travers(collected).map((stream) -> stream.collect(Collectors.toList()));
     }
 
-    public Try<KeyValuePair<String, Boolean>> testOne(KeyValuePair<String, Schema> schema) {
+    public Try<KeyValuePair<String, Boolean>> testOne(KeyValuePair<String, Schema> subjectSchemaPair) {
         return Try.ofFailable(() -> KeyValuePair.pair(
-                schema.key,
-                getClient().testCompatibility(schema.key, schema.value))
+                subjectSchemaPair.key,
+                getClient().testCompatibility(subjectSchemaPair.key, subjectSchemaPair.value))
         );
     }
 
-    public Try<List<KeyValuePair<String, Boolean>>> testAllCompatibilities(List<KeyValuePair<String, Schema>> schemas) {
-        List<Try<KeyValuePair<String, Boolean>>> collected = schemas
+    public Try<List<KeyValuePair<String, Boolean>>> testAll(List<KeyValuePair<String, Schema>> subjectSchemaPairs) {
+        List<Try<KeyValuePair<String, Boolean>>> collected = subjectSchemaPairs
                 .stream()
                 .map(this::testOne)
                 .collect(Collectors.toList());
@@ -135,19 +146,8 @@ public class RegistryActionFunction {
                 : tries.stream().filter(not(Try::isSuccess)).findFirst().orElse(extractionFailure()).map(Stream::of);
     }
 
-    public Try<FileInputStream> tryLoadingSubjects() {
-        File file = new File(this.config.getString("avro.subjects.yaml"));
-
-        return Try
-                .ofFailable(() ->  new FileInputStream(file))
-                .onFailure((t) -> logger.error("Fail to load the yaml file, it may not exist.", t));
-    }
-
-    public Try<List<SchemaList.SubjectEntry>> parseYaml(FileInputStream input) {
-        return Try
-                .ofFailable(() -> (SchemaList) getYaml().load(input))
-                .onFailure((t) -> logger.error("Fail to parse the yaml file, it may be corrupted", t))
-                .map(SchemaList::getSchemas);
+    public static <R> Predicate<R> not(Predicate<R> predicate) {
+        return predicate.negate();
     }
 
     private static <T> Try<T> extractionFailure() {

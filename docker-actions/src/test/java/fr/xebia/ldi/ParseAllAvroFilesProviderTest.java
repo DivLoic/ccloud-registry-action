@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Created by loicmdivad.
  */
-public class ParseAllAvroFilesTestProvider extends ActionTestProvider {
+public class ParseAllAvroFilesProviderTest extends ActionProviderTest {
 
     RegistryActionFunction service;
 

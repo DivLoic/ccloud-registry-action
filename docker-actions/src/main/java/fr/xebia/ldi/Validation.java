@@ -35,9 +35,9 @@ public class Validation {
                         )
                 ));
 
-        Try<List<KeyValuePair<String, Boolean>>> listTry = actionService
+        Try<List<KeyValuePair<String, Boolean>>> triedCompatibilityResults = actionService
 
-                .tryLoadingSubjects()
+                .tryStreamFileSubjects()
 
                 .flatMap(actionService::parseYaml)
 
@@ -59,9 +59,9 @@ public class Validation {
 
                 .onSuccess((l) -> logger.debug("Successfully parse all the avro schemas - now testing compatibilities"))
 
-                .flatMap(actionService::testAllCompatibilities);
+                .flatMap(actionService::testAll);
 
-        listTry
+        triedCompatibilityResults
                 .onFailure(throwable -> {
                     throw throwable;
                 })
