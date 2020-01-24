@@ -11,15 +11,15 @@ import java.util.Objects;
 /**
  * Created by loicmdivad.
  */
-public abstract class ActionProviderTest {
+public abstract class ActionTestProvider {
 
-    protected File fileResource(String name) {
+    protected File fileFromResource(String name) {
         return new File(Objects.requireNonNull(getClass().getClassLoader().getResource(name)).getPath());
     }
 
     protected Schema schemaFromResource(String fileName) {
         try {
-            return new Schema.Parser().parse(fileResource(fileName));
+            return new Schema.Parser().parse(fileFromResource(fileName));
         } catch (IOException e) {
             e.printStackTrace();
             return  Schema.create(Schema.Type.NULL);

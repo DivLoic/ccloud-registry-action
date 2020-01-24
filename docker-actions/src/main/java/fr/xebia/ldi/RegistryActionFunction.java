@@ -25,20 +25,20 @@ import static fr.xebia.ldi.KeyValuePair.pair;
 /**
  * Created by loicmdivad.
  */
-public class SchemaActionService {
+public class RegistryActionFunction {
 
     private Yaml yaml;
     private Config config;
     private SchemaRegistryClient client;
 
-    private Logger logger = LoggerFactory.getLogger(SchemaActionService.class);
+    private Logger logger = LoggerFactory.getLogger(RegistryActionFunction.class);
 
-    public SchemaActionService(Config config) {
+    public RegistryActionFunction(Config config) {
         this.config = config;
         this.setClient();
     }
 
-    public SchemaActionService(Config config, SchemaRegistryClient schemaRegistryClient) {
+    public RegistryActionFunction(Config config, SchemaRegistryClient schemaRegistryClient) {
         this.config = config;
         this.client = schemaRegistryClient;
     }

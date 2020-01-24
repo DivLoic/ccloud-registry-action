@@ -22,7 +22,7 @@ public class Validation {
         Config config = ConfigFactory.load();
         Logger logger = LoggerFactory.getLogger(Validation.class);
 
-        SchemaActionService actionService = new SchemaActionService(config);
+        RegistryActionFunction actionService = new RegistryActionFunction(config);
 
         Instant start = Instant.now();
         Runtime
