@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>fr.xebia.ldi</groupId>
-    <artifactId>ccloud-schema-docker-actions</artifactId>
+    <artifactId>ccloud-registry-docker-action</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 
     <developers>
@@ -30,10 +30,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <docker.url>gcr.io</docker.url>
-        <docker.repo>cloud-fighter-101-234409</docker.repo>
+        <docker.url>docker.pkg.github.com</docker.url>
+        <docker.repo>divloic/ccloud-registry-action</docker.repo>
         <docker.image.name>${project.artifactId}</docker.image.name>
         <docker.image.url>${docker.url}/${docker.repo}/${docker.image.name}:${project.version}</docker.image.url>
+        <docker.auth.username></docker.auth.username>
+        <docker.auth.password></docker.auth.password>
 
         <confluent.version>5.3.2</confluent.version>
         <logback.version>1.2.3</logback.version>
@@ -43,8 +45,16 @@
     </properties>
 
     <scm>
-        <connection>https://github.com/DivLoic/ccloud-schema-action.git</connection>
+        <connection>https://github.com/DivLoic/ccloud-registry-action.git</connection>
     </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub DivLoic Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/DivLoic/ccloud-registry-action</url>
+        </repository>
+    </distributionManagement>
 
     <repositories>
         <repository>
@@ -113,17 +123,23 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.22.2</version>
             </plugin>
+
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
                 <version>${jib.plugin.version}</version>
                 <configuration>
                     <to>
+                        <auth>
+                            <username>${docker.auth.username}</username>
+                            <password>${docker.auth.password}</password>
+                        </auth>
                         <image>${docker.image.url}</image>
                         <tags>
                             <tag>latest</tag>
@@ -158,5 +174,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
