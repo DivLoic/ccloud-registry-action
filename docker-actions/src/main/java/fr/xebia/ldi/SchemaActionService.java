@@ -1,13 +1,10 @@
 package fr.xebia.ldi;
 
 import com.jasongoodwin.monads.Try;
-import com.jasongoodwin.monads.TrySupplier;
-import com.sun.tools.javac.util.Pair;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
-import jdk.internal.org.objectweb.asm.commons.TryCatchBlockSorter;
 import org.apache.avro.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,14 +13,14 @@ import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.function.Function;
+import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static fr.xebia.ldi.KeyValuePair.pair;
 
 /**
  * Created by loicmdivad.
@@ -39,6 +36,11 @@ public class SchemaActionService {
     public SchemaActionService(Config config) {
         this.config = config;
         this.setClient();
+    }
+
+    public SchemaActionService(Config config, SchemaRegistryClient schemaRegistryClient) {
+        this.config = config;
+        this.client = schemaRegistryClient;
     }
 
     public Yaml getYaml() {
@@ -63,12 +65,11 @@ public class SchemaActionService {
         return new Schema.Parser();
     }
 
-    public void setYaml() {
+    private void setYaml() {
         this.yaml = new Yaml(new Constructor(SchemaList.class));
     }
 
-
-    public void setClient() {
+    private void setClient() {
         this.client = new CachedSchemaRegistryClient(
                 this.config.getString("schema.registry.url"),
                 this.config.getInt("schema.registry.capacity"),
@@ -84,92 +85,72 @@ public class SchemaActionService {
         );
     }
 
-    public void setClient(SchemaRegistryClient client) {
-        this.client = client;
-    }
-
     public static <R> Predicate<R> not(Predicate<R> predicate) {
         return predicate.negate();
     }
 
-    public List<Pair<String, File>> mapSubjectToFile(List<SchemaList.SubjectEntry> subjects) {
-        return subjects.stream().map((subject) ->
-                Pair.of(
+    public List<KeyValuePair<String, File>> mapSubjectToFile(List<SchemaList.SubjectEntry> subjects) {
+        return subjects
+                .stream()
+                .map((subject) -> pair(
                         subject.getSubject(),
                         new File(config.getString("avro.files.path"), subject.getFile())
-                )
-        ).collect(Collectors.toList());
+                ))
+                .collect(Collectors.toList());
     }
 
-    private <T> Supplier<Stream<T>> supply(List<T> list) {
-        return list::stream;
+    public Try<KeyValuePair<String, Schema>> parseOne(KeyValuePair<String, File> file) {
+        return Try.ofFailable(() -> pair(file.key, getParser().parse(file.value)));
     }
 
-
-    public Try<Pair<String, Schema>> parseOne(Pair<String, File> file) {
-        return Try.ofFailable(() -> Pair.of(file.fst, getParser().parse(file.snd)));
-    }
-
-    public Try<List<Pair<String, Schema>>> parseAll(List<Pair<String, File>> files) {
-        List<Try<Pair<String, Schema>>> collected = files
+    public Try<List<KeyValuePair<String, Schema>>> parseAll(List<KeyValuePair<String, File>> files) {
+        List<Try<KeyValuePair<String, Schema>>> collected = files
                 .stream()
                 .map(this::parseOne)
                 .collect(Collectors.toList());
 
-        Try<Stream<Pair<String, Schema>>> t = collected.stream().allMatch(Try::isSuccess)
-                ? Try.ofFailable(() -> collected.stream().map(Try::getUnchecked))
-                : Try.failure(new Exception("Fail to parse some schema files"));
-
-        return t.map((stream) -> stream.collect(Collectors.toList()));
+        return travers(collected).map((stream) -> stream.collect(Collectors.toList()));
     }
 
-    public Try<Pair<String, Boolean>> testOne(Pair<String, Schema> schema) {
-        return Try.ofFailable(() -> Pair.of(schema.fst, getClient().testCompatibility(schema.fst, schema.snd)));
+    public Try<KeyValuePair<String, Boolean>> testOne(KeyValuePair<String, Schema> schema) {
+        return Try.ofFailable(() -> KeyValuePair.pair(
+                schema.key,
+                getClient().testCompatibility(schema.key, schema.value))
+        );
     }
 
-    public Try<List<Pair<String, Boolean>>> testAllCompatibilities(List<Pair<String, Schema>> schemas) {
-        List<Try<Pair<String, Boolean>>> collected = schemas
+    public Try<List<KeyValuePair<String, Boolean>>> testAllCompatibilities(List<KeyValuePair<String, Schema>> schemas) {
+        List<Try<KeyValuePair<String, Boolean>>> collected = schemas
                 .stream()
                 .map(this::testOne)
                 .collect(Collectors.toList());
 
-        Try<Stream<Pair<String, Boolean>>> t = collected.stream().allMatch(Try::isSuccess)
-                ? Try.ofFailable(() -> collected.stream().map(Try::getUnchecked))
-                : Try.failure(new Exception("Fail to test schema files compatibility"));
-
-        return t.map((stream) -> stream.collect(Collectors.toList()));
+        return travers(collected).map((stream) -> stream.collect(Collectors.toList()));
     }
 
-    public <T, U> Try<Stream<T>> travers(List<Try<T>> tries) {
+    public <T> Try<Stream<T>> travers(List<Try<T>> tries) {
 
-        Try<Stream<T>> t = tries.stream().allMatch(Try::isSuccess)
+        return tries.stream().allMatch(Try::isSuccess)
                 ? Try.ofFailable(() -> tries.stream().map(Try::getUnchecked))
-                : Try.failure(new Exception("Fail to test schema files compatibility"));
-
-        return null;
-
+                : tries.stream().filter(not(Try::isSuccess)).findFirst().orElse(extractionFailure()).map(Stream::of);
     }
 
-    public Try<List<SchemaList.SubjectEntry>> triedSubjectList() {
-        File file = new File("/tmp/app/avro/schema.yml");
+    public Try<FileInputStream> tryLoadingSubjects() {
+        File file = new File(this.config.getString("avro.subjects.yaml"));
 
         return Try
                 .ofFailable(() ->  new FileInputStream(file))
-                .onFailure((t) -> logger.error("Fail to load the schema.yml file in a FileInputStream", t))
-                .map((fis) -> (SchemaList) getYaml().load(fis))
-                .onFailure((t) -> logger.error("Fail to parse the schema.yml file to SchemaList class", t))
+                .onFailure((t) -> logger.error("Fail to load the yaml file, it may not exist.", t));
+    }
+
+    public Try<List<SchemaList.SubjectEntry>> parseYaml(FileInputStream input) {
+        return Try
+                .ofFailable(() -> (SchemaList) getYaml().load(input))
+                .onFailure((t) -> logger.error("Fail to parse the yaml file, it may be corrupted", t))
                 .map(SchemaList::getSchemas);
-
     }
 
-    public static File[] listAvscFiles(Config config) {
-        return new File(config.getString("avro.files.path"))
-                .listFiles(pathname -> pathname.getName().endsWith(".avsc"));
-    }
-
-    public static Map<String, File> mapSubjectToFiles(File[] files, Config config) {
-        return Arrays
-                .stream(Objects.requireNonNull(files))
-                .collect(Collectors.toMap((File file) -> file.getName().replace(".avsc", ""), (File file) -> file));
+    private static <T> Try<T> extractionFailure() {
+        return Try.failure(new IllegalStateException("Fail to extract the corrupted element. This should not occur."));
     }
 }

@@ -17,7 +17,7 @@ public class KeyValuePair<K, V> {
         return "{\"" + key.toString() + "\": \"" + value.toString() + "\"}";
     }
 
-    public static <A,B> KeyValuePair<A,B> KeyValuePair(A a, B b) {
-        return new KeyValuePair<A,B>(a,b);
+    public static <K, V> KeyValuePair<K, V> pair(K a, V b) {
+        return new KeyValuePair<>(a, b);
     }
 }

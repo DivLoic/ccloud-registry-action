@@ -6,10 +6,11 @@ import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+
+import static java.lang.System.exit;
 
 /**
  * Created by loicmdivad.
@@ -23,62 +24,66 @@ public class Validation {
 
         SchemaActionService actionService = new SchemaActionService(config);
 
-        actionService
+        Instant start = Instant.now();
+        Runtime
+                .getRuntime()
+                .addShutdownHook(new Thread(
+                        () -> logger.info(
+                                String.format(
+                                        "time elapsed : %s sec.",
+                                        Duration.between(start, Instant.now()).toMillis() / 1000.d)
+                        )
+                ));
 
-                .triedSubjectList()
+        Try<List<KeyValuePair<String, Boolean>>> listTry = actionService
+
+                .tryLoadingSubjects()
+
+                .flatMap(actionService::parseYaml)
 
                 .onSuccess((l) -> logger.info("Successfully load the yaml file."))
 
-                .map((subjects) -> subjects.stream().map(actionService::mapSubjectToFile))
+                .map(actionService::mapSubjectToFile)
 
-                .onSuccess((l) -> logger.info("Successfully parse the yaml into SchemaList instance."))
+                .onSuccess((l) -> logger.info("Successfully convert the yaml into a SchemaList instance."))
 
                 .onSuccess((l) -> l.forEach((entry) -> logger.info(
                         String.format(
-                                "Subject loaded - subject: %s / file: %s",
-                                entry.getKey(),
-                                entry.getValue().getPath()
-                        )
-                )))
+                                "Subject loaded - subject: %s <> file: %s",
+                                entry.key,
+                                entry.value.getPath()
+                        ))
+                ))
 
-        ;
+                .flatMap(actionService::parseAll)
 
+                .onSuccess((l) -> logger.debug("Successfully parse all the avro schemas - now testing compatibilities"))
 
-        System.exit(1);
+                .flatMap(actionService::testAllCompatibilities);
 
+        listTry
+                .onFailure(throwable -> {
+                    throw throwable;
+                })
 
-        Map<String, File> subjectSchemaMap = SchemaActionService.mapSubjectToFiles(null, config);
+                .onSuccess((validations) -> {
 
-        subjectSchemaMap.forEach((subject, file) ->
-                logger.debug(String.format("Loading - subject: %s / file: %s", subject, file.getPath()))
-        );
+                            if (validations.isEmpty()) {
+                                logger.warn("Not a single schema to validate was found ... ");
+                                exit(0);
+                            }
 
-        Map<String, Try<Boolean>> compatibilities = subjectSchemaMap.entrySet().stream().map(entry -> {
+                            validations.forEach((validation) -> {
+                                if (!validation.value) logger.error(
+                                        String.format("Compatibility test failed for subject: %s.", validation.key)
+                                );
+                            });
 
-            Try<Boolean> triedCompatibility = Try.ofFailable(() -> actionService.getParser().parse(entry.getValue()))
-
-                    .onFailure((t) -> logger.error(String.format("Fail to parse schema from subject %s", entry.getKey()), t))
-
-                    .map((schema) -> actionService.getClient().testCompatibility(entry.getKey(), schema))
-
-                    .onFailure((t) -> logger.error(String.format("Compatibility check failed for %s", entry.getKey()), t));
-
-            return new AbstractMap.SimpleEntry<>(entry.getKey(), triedCompatibility);
-
-        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        Optional<Try<Boolean>> result = compatibilities.values().stream().reduce(
-                (booleanTry, booleanTry2) ->
-                        booleanTry.flatMap(compatibility ->
-                                booleanTry2.map(compatibility2 ->
-                                        compatibility && compatibility2)
-                        )
-        );
-
-        if(result.get().get()) {
-            logger.info("Successfully validate the compatibility of all schemas");
-        } else {
-            throw new Exception("Nope!");
-        }
+                            if (validations.stream().allMatch((validation) -> validation.value)) logger.info(
+                                    "🎉 Successfully validate all schema compatibilities."
+                            );
+                            else throw new Exception("Fail due to incompatible schemas.");
+                        }
+                );
     }
 }

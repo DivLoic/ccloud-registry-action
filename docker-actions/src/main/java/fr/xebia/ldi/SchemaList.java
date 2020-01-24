@@ -1,5 +1,6 @@
 package fr.xebia.ldi;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -7,7 +8,7 @@ import java.util.List;
  */
 public class SchemaList {
 
-    private List<SubjectEntry> schemas;
+    private List<SubjectEntry> schemas = Collections.emptyList();
 
     public void setSchemas(List<SubjectEntry> schemas) {
         this.schemas = schemas;
