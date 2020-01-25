@@ -1,0 +1,9 @@
+<content>
+    ---
+    schemas:
+      - subject: TAXI-TRIP-DROPOFF-2018-11-28-value
+        file: schema1.avsc
+
+      - subject: TAXI-TRIP-PICKUP-2018-11-28-value
+        file: schema2.avsc
+</content>

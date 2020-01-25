@@ -1,0 +1,15 @@
+<schema>
+    <name>TaxiTripDropoff</name>
+    <namespace>fr.xebia.gbildi</namespace>
+    <type>record</type>
+    <fields>
+        <field>
+            <name>trip_distance</name>
+            <type>float</type>
+        </field>
+        <field>
+            <name>dropoff_datetime</name>
+            <type logical-type="timestamp-millis">long</type>
+        </field>
+    </fields>
+</schema>
