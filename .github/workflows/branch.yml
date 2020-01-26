@@ -1,0 +1,32 @@
+name: Branch Workflow
+
+on:
+  push:
+    branches-ignore:
+      - 'release/*'
+      - 'wip/**'
+      - 'master'
+    tags:
+      - 'v*'
+
+jobs:
+  branch:
+    name: Branch Workflow Job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout CCloud Registry Actions
+        uses: actions/checkout@v1
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Maven Unit Tests
+        working-directory: ./docker-actions/
+        run: ./mvnw -B test
+
+      - name: Maven It Tests
+        working-directory: ./docker-actions/
+        run: ./mvnw -B integration-test -Dit.only

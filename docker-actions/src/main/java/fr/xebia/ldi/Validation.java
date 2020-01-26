@@ -3,6 +3,7 @@ package fr.xebia.ldi;
 import com.jasongoodwin.monads.Try;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import fr.xebia.ldi.error.CompatibilityCheckException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,12 +15,6 @@ import java.util.List;
  * Created by loicmdivad.
  */
 public class Validation {
-
-    static class CompatibilityCheckException extends Exception {
-        CompatibilityCheckException(String message){
-            super(message);
-        }
-    }
 
     public static void main(String[] args) throws Throwable {
 
