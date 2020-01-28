@@ -91,6 +91,7 @@
             <artifactId>snakeyaml</artifactId>
             <version>1.25</version>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -115,6 +116,18 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.12.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.12.5</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -127,7 +140,7 @@
                 <version>3.0.0</version>
                 <executions>
                     <execution>
-                        <id>add-test-it-resource</id>
+                        <id>add-it-resource</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>add-test-resource</goal>
@@ -141,7 +154,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>add-test-it-source</id>
+                        <id>add-it-source</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>add-test-source</goal>
@@ -159,6 +172,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
+                <configuration>
+                    <trimStackTrace>false</trimStackTrace>
+                </configuration>
                 <executions>
                     <execution>
                         <id>default-test</id>

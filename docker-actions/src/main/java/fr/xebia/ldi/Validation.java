@@ -17,6 +17,12 @@ import static java.lang.System.exit;
  */
 public class Validation {
 
+    static class CompatibilityCheckException extends Exception {
+        CompatibilityCheckException(String message){
+            super(message);
+        }
+    }
+
     public static void main(String[] args) throws Throwable {
 
         Config config = ConfigFactory.load();
@@ -82,7 +88,7 @@ public class Validation {
                             if (validations.stream().allMatch((validation) -> validation.value)) logger.info(
                                     "🎉 Successfully validate all schema compatibilities."
                             );
-                            else throw new Exception("Fail due to incompatible schemas.");
+                            else throw new CompatibilityCheckException("Fail due to incompatible schemas.");
                         }
                 );
     }
