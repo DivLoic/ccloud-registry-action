@@ -16,6 +16,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import static fr.xebia.ldi.ActionTestProvider.byteToUTF8;
 import static java.util.Objects.requireNonNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -24,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Created by loicmdivad.
  */
-class RegistryActionFunctionProviderTest extends ActionProviderTest {
+class RegistryActionFunctionProviderTest {
 
     RegistryActionFunction service;
 

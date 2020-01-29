@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static fr.xebia.ldi.ActionTestProvider.fileFromResource;
 import static fr.xebia.ldi.KeyValuePair.pair;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Created by loicmdivad.
  */
-public class ParseAllAvroFilesProviderTest extends ActionProviderTest {
+public class ParseAllAvroFilesProviderTest {
 
     RegistryActionFunction service;
 
