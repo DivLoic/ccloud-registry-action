@@ -6,11 +6,15 @@
         </encoder>
     </appender>
 
-    <logger name="fr.xebia.ldi" level="ERROR" additivity="false">
+    <logger name="fr.xebia.ldi" level="OFF" additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
 
-    <root level="ERROR">
+    <logger name="io.confluent" level="OFF" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <root level="OFF">
         <appender-ref ref="STDOUT" />
     </root>
 

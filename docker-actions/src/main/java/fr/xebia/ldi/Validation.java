@@ -10,8 +10,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
-import static java.lang.System.exit;
-
 /**
  * Created by loicmdivad.
  */
@@ -25,6 +23,7 @@ public class Validation {
 
     public static void main(String[] args) throws Throwable {
 
+        ConfigFactory.invalidateCaches();
         Config config = ConfigFactory.load();
         Logger logger = LoggerFactory.getLogger(Validation.class);
 
@@ -76,7 +75,7 @@ public class Validation {
 
                             if (validations.isEmpty()) {
                                 logger.warn("Not a single schema to validate was found ... ");
-                                exit(0);
+                                return;
                             }
 
                             validations.forEach((validation) -> {
