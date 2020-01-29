@@ -211,6 +211,16 @@
                             <excludes>
                                 <exclude>**/*Test.java</exclude>
                             </excludes>
+                            <systemProperties>
+                                <property>
+                                    <name>config.file</name>
+                                    <value>${project.build.testOutputDirectory}/application-it.conf</value>
+                                </property>
+                                <property>
+                                    <name>logback.configurationFile</name>
+                                    <value>${project.build.testOutputDirectory}/logback-it.xml</value>
+                                </property>
+                            </systemProperties>
                         </configuration>
                     </execution>
                 </executions>
