@@ -1,0 +1,7 @@
+---
+schemas:
+  - subject: subject1-value
+    file: schema1.avsc
+
+  - subject: subject2-value
+    file: schema2-error.avsc

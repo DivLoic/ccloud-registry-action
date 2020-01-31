@@ -1,0 +1,28 @@
+{
+  "fields": [
+    {
+      "logicalType": "uuid",
+      "name": "uuid",
+      "type": "string"
+    },
+    {
+      "name": "pickup_datetime",
+      "type": "bytes"
+    },
+    {
+      "name": "dayofweek",
+      "type": "int"
+    },
+    {
+      "name": "hourofday",
+      "type": "long"
+    },
+    {
+      "name": "passenger_count",
+      "type": "boolean"
+    }
+  ],
+  "name": "TaxiTripPickup",
+  "namespace": "fr.xebia.gbildi",
+  "type": "record"
+}

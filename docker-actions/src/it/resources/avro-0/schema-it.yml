@@ -1,0 +1,13 @@
+---
+schemas:
+  - subject: subject1-key
+    file: schema0.avsc
+
+  - subject: subject2-key
+    file: schema0.avsc
+
+  - subject: subject1-value
+    file: schema1.avsc
+
+  - subject: subject2-value
+    file: schema2.avsc
