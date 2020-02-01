@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Created by loicmdivad.
  */
-public class ParseAllAvroFilesProviderTest {
+public class ParseAllAvroFilesTest {
 
     RegistryActionFunction service;
 

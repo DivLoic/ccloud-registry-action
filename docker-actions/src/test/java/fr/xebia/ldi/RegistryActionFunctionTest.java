@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Created by loicmdivad.
  */
-class RegistryActionFunctionProviderTest {
+class RegistryActionFunctionTest {
 
     RegistryActionFunction service;
 

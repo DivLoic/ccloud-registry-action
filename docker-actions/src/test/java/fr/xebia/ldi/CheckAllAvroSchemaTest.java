@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Created by loicmdivad.
  */
-public class CheckAllAvroSchemaProviderTest {
+public class CheckAllAvroSchemaTest {
 
     RegistryActionFunction service;
 
