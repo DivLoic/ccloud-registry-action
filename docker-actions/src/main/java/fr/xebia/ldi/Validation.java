@@ -80,7 +80,7 @@ public class Validation {
                             });
 
                             if (validations.stream().allMatch((validation) -> validation.value)) logger.info(
-                                    "🎉 Successfully validate all schema compatibilities."
+                                    "\\(ᵔᵕᵔ)/ Successfully validate all schema compatibilities."
                             );
                             else throw new CompatibilityCheckException("Fail due to incompatible schemas.");
                         }
