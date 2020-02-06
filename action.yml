@@ -1,0 +1,34 @@
+name: 'Schema Validation'
+description: 'Confluent Cloud schema registry compatibility check'
+branding:
+  icon: 'cloud'
+  color: 'orange'
+
+inputs:
+  avro-subject-yaml:
+    description: ''
+    required: false
+    default: 'schemas.yaml'
+  avro-files-path:
+    description: ''
+    required: false
+    default: 'src/main/avro'
+  schema-registry-url:
+    description: ''
+    required: true
+  schema-registry-api-key:
+    description: ''
+    required: true
+  schema-registry-secret-key:
+    description: ''
+    required: true
+
+runs:
+  using: 'docker'
+  image: 'docker://loicmdivad/ccloud-registry-action:0.0.1-SNAPSHOT'
+  env:
+    AVRO_FILES_PATH: ${{ inputs.avro-files-path }}
+    AVRO_SUBJECT_YAML: ${{ inputs.avro-subject-yaml }}
+    SCHEMA_REGISTRY_URL: ${{ inputs.schema-registry-url }}
+    SCHEMA_REGISTRY_API_KEY: ${{ inputs.schema-registry-api-key }}
+    SCHEMA_REGISTRY_SECRET_KEY: ${{ inputs.schema-registry-secret-key }}
