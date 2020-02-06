@@ -6,7 +6,7 @@
 
     <groupId>fr.xebia.ldi</groupId>
     <artifactId>ccloud-registry-docker-action</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
 
     <developers>
         <developer>
@@ -30,31 +30,48 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+        <action.owner/>
+        <dockerhub.password/>
+        <docker.auth.username/>
+        <docker.auth.password/>
         <docker.url>docker.pkg.github.com</docker.url>
-        <docker.repo>divloic/ccloud-registry-action</docker.repo>
+        <docker.repo>${action.owner}/ccloud-registry-action</docker.repo>
         <docker.image.name>${project.artifactId}</docker.image.name>
         <docker.image.url>${docker.url}/${docker.repo}/${docker.image.name}:${project.version}</docker.image.url>
-        <docker.auth.username></docker.auth.username>
-        <docker.auth.password></docker.auth.password>
 
         <confluent.version>5.3.2</confluent.version>
         <logback.version>1.2.3</logback.version>
         <config.version>1.4.0</config.version>
         <junit.version>5.5.2</junit.version>
+        <better-monads.version>0.4.1</better-monads.version>
+        <snake-yaml.version>1.25</snake-yaml.version>
+
+        <hamcrest.version>2.2</hamcrest.version>
+        <junit-pioneer.version>0.5.3</junit-pioneer.version>
+        <junit-surefire-provider.version>1.3.2</junit-surefire-provider.version>
+        <testcontainers.version>1.12.5</testcontainers.version>
+
         <jib.plugin.version>1.8.0</jib.plugin.version>
+        <buildhelper-maven-plugin.version>3.0.0</buildhelper-maven-plugin.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+        <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
 
         <it.only/>
     </properties>
 
     <scm>
-        <connection>https://github.com/DivLoic/ccloud-registry-action.git</connection>
+        <tag>HEAD</tag>
+        <url>https://github.com/${action.owner}/ccloud-registry-action.git</url>
+        <connection>scm:git:https://github.com/${action.owner}/ccloud-registry-action.git</connection>
+        <developerConnection>scm:git:https://github.com/${action.owner}/ccloud-registry-action.git</developerConnection>
     </scm>
 
     <distributionManagement>
         <repository>
             <id>github</id>
-            <name>GitHub DivLoic Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/DivLoic/ccloud-registry-action</url>
+            <name>GitHub ${action.owner} Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/${action.owner}/ccloud-registry-action</url>
         </repository>
     </distributionManagement>
 
@@ -79,7 +96,7 @@
         <dependency>
             <groupId>com.jason-goodwin</groupId>
             <artifactId>better-monads</artifactId>
-            <version>0.4.1</version>
+            <version>${better-monads.version}</version>
         </dependency>
         <dependency>
             <groupId>io.confluent</groupId>
@@ -89,7 +106,7 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.25</version>
+            <version>${snake-yaml.version}</version>
         </dependency>
 
         <dependency>
@@ -99,51 +116,75 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-surefire-provider</artifactId>
-            <version>1.3.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-surefire-provider</artifactId>
+            <version>${junit-surefire-provider.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.junit-pioneer</groupId>
             <artifactId>junit-pioneer</artifactId>
-            <version>0.5.3</version>
+            <version>${junit-pioneer.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
-            <version>2.2</version>
+            <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>1.12.5</version>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.12.5</version>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
 
     </dependencies>
 
-    <build>
+    <profiles>
+        <profile>
+            <id>github-packages</id>
+            <properties>
+                <jib.target>${docker.image.url}</jib.target>
+                <jib.user>${docker.auth.username}</jib.user>
+                <jib.pass>${docker.auth.password}</jib.pass>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>dockerhub-repo</id>
+            <properties>
+                <jib.target>loicmdivad/ccloud-registry-action</jib.target>
+                <jib.user>loicmdivad</jib.user>
+                <jib.pass>${dockerhub.password}</jib.pass>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
 
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>${buildhelper-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>add-it-resource</id>
@@ -177,7 +218,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <trimStackTrace>false</trimStackTrace>
                 </configuration>
@@ -233,18 +274,33 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${maven-release-plugin.version}</version>
+                <configuration>
+                    <pushChanges>false</pushChanges>
+                    <localCheckout>true</localCheckout>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <checkModificationExcludes>
+                        <checkModificationExclude>**</checkModificationExclude>
+                    </checkModificationExcludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
                 <version>${jib.plugin.version}</version>
                 <configuration>
                     <to>
                         <auth>
-                            <username>${docker.auth.username}</username>
-                            <password>${docker.auth.password}</password>
+                            <username>${jib.user}</username>
+                            <password>${jib.pass}</password>
                         </auth>
-                        <image>${docker.image.url}</image>
+                        <image>${jib.target}</image>
                         <tags>
                             <tag>latest</tag>
+                            <tag>${project.version}</tag>
                         </tags>
                     </to>
                 </configuration>
@@ -253,9 +309,10 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.5</version>
+                <version>${jacoco-maven-plugin.version}</version>
                 <configuration>
                     <excludes>
+                        <exclude>fr/xebia/ldi/error/*</exclude>
                         <exclude>fr/xebia/ldi/Validation.*</exclude>
                     </excludes>
                 </configuration>

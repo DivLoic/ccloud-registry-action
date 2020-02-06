@@ -1,0 +1,57 @@
+name: Master Workflow
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  main:
+    name: Master Workflow Job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout CCloud Registry Actions
+        uses: actions/checkout@v1
+
+      - name: Maven settings configuration
+        env:
+          CCLOUD_ACTION_TOKEN: ${{ secrets.CCLOUD_ACTION_TOKEN }}
+          CCLOUD_ACTION_OWNER: ${{ secrets.CCLOUD_ACTION_OWNER }}
+          DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+        run: |
+          export CCLOUD_ACTION_OWNER=$(echo ${{ github.repository }} | awk -F / '{print tolower($1)}')
+          envsubst < .github/settings.template.xml > settings.xml
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Maven Unit Tests
+        working-directory: ./docker-actions/
+        run: ./mvnw -B test
+
+      - uses: codecov/codecov-action@v1.0.5
+        name: Upload test coverage
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./docker-actions/target/site/jacoco/jacoco.xml
+          flags: unittests
+
+      - name: Maven It Tests
+        working-directory: ./docker-actions/
+        run: ./mvnw -B integration-test -Dit.only
+
+      - name: Maven Deploy Jar Archive
+        working-directory: ./docker-actions/
+        run: ./mvnw -B -s ../settings.xml -DskipTests deploy
+
+      - name: Maven Deploy Docker Image (Github Packages)
+        working-directory: ./docker-actions/
+        run: ./mvnw -B -s ../settings.xml -DskipTests jib:build -Pgithub-packages
+
+      - name: Maven Deploy Docker Image (Docker Hub)
+        working-directory: ./docker-actions/
+        run: ./mvnw -B -s ../settings.xml -DskipTests jib:build -Pdockerhub-repo
+

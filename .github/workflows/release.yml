@@ -1,0 +1,86 @@
+name: Release Workflow
+
+on:
+  push:
+    branches:
+      - 'release/**'
+
+jobs:
+  release:
+    name: Release Workflow Job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Prepare Git Operations
+        run: |
+          git config --global user.name Github Action
+          git config --global user.email octocat@github.com
+
+      - name: Checkout CCloud Registry Actions
+        uses: actions/checkout@v1
+
+      - name: Set Release Version
+        working-directory: ./docker-actions/
+        shell: bash
+        id: release
+        run: ../.github/validate-release.sh
+
+      - name: Checkout CCloud Registry Actions's HEAD^
+        run: git checkout ${{ steps.release.outputs.branch }}
+
+      - name: Maven settings configuration
+        env:
+          CCLOUD_ACTION_TOKEN: ${{ secrets.CCLOUD_ACTION_TOKEN }}
+          CCLOUD_ACTION_OWNER: ${{ secrets.CCLOUD_ACTION_OWNER }}
+          DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+        run: |
+          export CCLOUD_ACTION_OWNER=$(echo ${{ github.repository }} | awk -F / '{print tolower($1)}')
+          envsubst < .github/settings.template.xml > settings.xml
+          git remote add github \
+          https://${CCLOUD_ACTION_OWNER}:${CCLOUD_ACTION_TOKEN}@github.com/${{ github.repository }}.git
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Maven Release Prepare
+        working-directory: ./docker-actions/
+        run: |
+          ./mvnw -B -s ../settings.xml \
+          -Darguments="-DskipTests" release:prepare \
+          -DreleaseVersion=${{ steps.release.outputs.version }}
+
+      - name: Maven Unit Tests
+        working-directory: ./docker-actions/
+        run: ./mvnw -B test
+
+      - name: Maven It Tests
+        working-directory: ./docker-actions/
+        run: ./mvnw -B integration-test -Dit.only
+
+      - name: Maven Release Perform
+        working-directory: ./docker-actions/
+        run: ./mvnw -B -s ../settings.xml -Darguments="-DskipTests" release:perform
+
+      - name: Maven Deploy Docker Image (Github Packages)
+        working-directory: ./docker-actions/
+        run: ./mvnw -B -s ../settings.xml -DskipTests jib:build -Pgithub-packages
+
+      - name: Maven Deploy Docker Image (Docker Hub)
+        working-directory: ./docker-actions/
+        run: ./mvnw -B -s ../settings.xml -DskipTests jib:build -Pdockerhub-repo
+
+      - name: Checkout CCloud Registry Actions Master
+        uses: actions/checkout@v1
+        with:
+          ref: master
+
+      - name: Checkout CCloud Registry Actions Master's HEAD^
+        run: git checkout master
+
+      - name: Merge release branch into master
+        run: |
+          git merge ${{ steps.release.outputs.branch }}
+          git push github master
+          git push github --tags

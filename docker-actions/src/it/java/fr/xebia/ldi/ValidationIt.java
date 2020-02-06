@@ -1,6 +1,6 @@
 package fr.xebia.ldi;
 
-import fr.xebia.ldi.Validation.CompatibilityCheckException;
+import fr.xebia.ldi.error.CompatibilityCheckException;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
