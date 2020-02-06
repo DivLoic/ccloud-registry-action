@@ -12,7 +12,7 @@ inputs:
   avro-files-path:
     description: ''
     required: false
-    default: 'src/main/resources'
+    default: 'src/main/avro'
   schema-registry-url:
     description: ''
     required: true
