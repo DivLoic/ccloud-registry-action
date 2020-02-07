@@ -33,11 +33,12 @@ jobs:
           CCLOUD_ACTION_TOKEN: ${{ secrets.CCLOUD_ACTION_TOKEN }}
           CCLOUD_ACTION_OWNER: ${{ secrets.CCLOUD_ACTION_OWNER }}
           DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+          GITHUB_ACTION_URL: https://${{ secrets.CCLOUD_ACTION_OWNER }}:${{ secrets.CCLOUD_ACTION_TOKEN }}@github.com
         run: |
+          export TARGET_VERSION=$(echo ${{ github.ref }} | awk -F / '{print $4}')
           export CCLOUD_ACTION_OWNER=$(echo ${{ github.repository }} | awk -F / '{print tolower($1)}')
           envsubst < .github/settings.template.xml > settings.xml
-          git remote add github \
-          https://${CCLOUD_ACTION_OWNER}:${CCLOUD_ACTION_TOKEN}@github.com/${{ github.repository }}.git
+          git remote add github ${GITHUB_ACTION_URL}/${{ github.repository }}.git
 
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
@@ -62,14 +63,6 @@ jobs:
       - name: Maven Release Perform
         working-directory: ./docker-actions/
         run: ./mvnw -B -s ../settings.xml -Darguments="-DskipTests" release:perform
-
-      - name: Maven Deploy Docker Image (Github Packages)
-        working-directory: ./docker-actions/
-        run: ./mvnw -B -s ../settings.xml -DskipTests jib:build -Pgithub-packages
-
-      - name: Maven Deploy Docker Image (Docker Hub)
-        working-directory: ./docker-actions/
-        run: ./mvnw -B -s ../settings.xml -DskipTests jib:build -Pdockerhub-repo
 
       - name: Checkout CCloud Registry Actions Master
         uses: actions/checkout@v1

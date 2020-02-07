@@ -16,6 +16,11 @@ jobs:
         with:
           ref: master
 
+      - name: Prepare Git Operations
+        run: |
+          git config --global user.name Github Action
+          git config --global user.email octocat@github.com
+
       - name: Merge branch ${{ github.head_ref }}
         run: git merge origin/${{ github.head_ref }}
 
