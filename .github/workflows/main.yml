@@ -47,11 +47,11 @@ jobs:
         working-directory: ./docker-actions/
         run: ./mvnw -B -s ../settings.xml -DskipTests deploy
 
-      - name: Maven Deploy Docker Image (Github Packages)
-        working-directory: ./docker-actions/
-        run: ./mvnw -B -s ../settings.xml -DskipTests jib:build -Pgithub-packages
-
       - name: Maven Deploy Docker Image (Docker Hub)
         working-directory: ./docker-actions/
-        run: ./mvnw -B -s ../settings.xml -DskipTests jib:build -Pdockerhub-repo
+        run: ./mvnw -B -s ../settings.xml -DskipTests jib:build@dockerhub-repo
+
+      - name: Maven Deploy Docker Image (Github Packages)
+        working-directory: ./docker-actions/
+        run: ./mvnw -B -s ../settings.xml -DskipTests jib:build@github-packages
 

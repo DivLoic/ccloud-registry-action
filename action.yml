@@ -6,26 +6,26 @@ branding:
 
 inputs:
   avro-subject-yaml:
-    description: ''
+    description: 'path to the subject file'
     required: false
     default: 'schemas.yaml'
   avro-files-path:
-    description: ''
+    description: 'path to the schemas folder'
     required: false
     default: 'src/main/avro'
   schema-registry-url:
-    description: ''
+    description: 'url to the schema-registry'
     required: true
   schema-registry-api-key:
-    description: ''
+    description: 'Confluent API key'
     required: true
   schema-registry-secret-key:
-    description: ''
+    description: 'Confluent secret key'
     required: true
 
 runs:
   using: 'docker'
-  image: 'docker://loicmdivad/ccloud-registry-action:0.0.1-SNAPSHOT'
+  image: 'docker://loicmdivad/ccloud-registry-action:%VERSION%'
   env:
     AVRO_FILES_PATH: ${{ inputs.avro-files-path }}
     AVRO_SUBJECT_YAML: ${{ inputs.avro-subject-yaml }}

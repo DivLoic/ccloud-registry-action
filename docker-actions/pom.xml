@@ -31,6 +31,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <action.owner/>
+        <target.version/>
         <dockerhub.password/>
         <docker.auth.username/>
         <docker.auth.password/>
@@ -54,8 +55,10 @@
         <jib.plugin.version>1.8.0</jib.plugin.version>
         <buildhelper-maven-plugin.version>3.0.0</buildhelper-maven-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <maven-replacer-plugin.version>1.5.3</maven-replacer-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-        <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+        <maven-jacoco-plugin.version>0.8.5</maven-jacoco-plugin.version>
+        <maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
 
         <it.only/>
     </properties>
@@ -153,31 +156,6 @@
         </dependency>
 
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>github-packages</id>
-            <properties>
-                <jib.target>${docker.image.url}</jib.target>
-                <jib.user>${docker.auth.username}</jib.user>
-                <jib.pass>${docker.auth.password}</jib.pass>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-        <profile>
-            <id>dockerhub-repo</id>
-            <properties>
-                <jib.target>loicmdivad/ccloud-registry-action</jib.target>
-                <jib.user>loicmdivad</jib.user>
-                <jib.pass>${dockerhub.password}</jib.pass>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-    </profiles>
 
     <build>
         <plugins>
@@ -278,6 +256,20 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>${maven-release-plugin.version}</version>
                 <configuration>
+                    <goals>
+                        deploy
+                        jib:build@dockerhub-repo
+                        jib:build@github-packages
+                    </goals>
+                    <preparationGoals>
+                        clean verify
+                        replacer:replace@version
+                        scm:checkin@commit-prepare
+                    </preparationGoals>
+                    <completionGoals>
+                        replacer:replace@unversion
+                        scm:checkin@commit-perform
+                    </completionGoals>
                     <pushChanges>false</pushChanges>
                     <localCheckout>true</localCheckout>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
@@ -288,28 +280,103 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-plugin</artifactId>
+                <version>${maven-scm-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>commit-prepare</id>
+                        <configuration>
+                            <pushChanges>false</pushChanges>
+                            <message>[maven-release-plugin] prepare release ${project.version}</message>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>commit-perform</id>
+                        <configuration>
+                            <pushChanges>false</pushChanges>
+                            <message>[maven-release-plugin] prepare for next development iteration</message>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>${maven-replacer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>version</id>
+                        <configuration>
+                            <file>../action.yml</file>
+                            <replacements>
+                                <replacement>
+                                    <token>%VERSION%</token>
+                                    <value>v${project.version}</value>
+                                </replacement>
+                            </replacements>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unversion</id>
+                        <configuration>
+                            <file>../action.yml</file>
+                            <replacements>
+                                <replacement>
+                                    <token>v${target.version}</token>
+                                    <value>%VERSION%</value>
+                                </replacement>
+                            </replacements>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
                 <version>${jib.plugin.version}</version>
-                <configuration>
-                    <to>
-                        <auth>
-                            <username>${jib.user}</username>
-                            <password>${jib.pass}</password>
-                        </auth>
-                        <image>${jib.target}</image>
-                        <tags>
-                            <tag>latest</tag>
-                            <tag>${project.version}</tag>
-                        </tags>
-                    </to>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>github-packages</id>
+                        <configuration>
+                            <to>
+                                <auth>
+                                    <username>${docker.auth.username}</username>
+                                    <password>${docker.auth.password}</password>
+                                </auth>
+                                <image>${docker.image.url}</image>
+                                <tags>
+                                    <tag>latest</tag>
+                                    <tag>${project.version}</tag>
+                                </tags>
+                            </to>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>dockerhub-repo</id>
+                        <configuration>
+                            <to>
+                                <auth>
+                                    <username>loicmdivad</username>
+                                    <password>${dockerhub.password}</password>
+                                </auth>
+                                <image>loicmdivad/cicd-registry-test2</image>
+                                <tags>
+                                    <tag>latest</tag>
+                                    <tag>${project.version}</tag>
+                                </tags>
+                            </to>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven-plugin.version}</version>
+                <version>${maven-jacoco-plugin.version}</version>
                 <configuration>
                     <excludes>
                         <exclude>fr/xebia/ldi/error/*</exclude>
