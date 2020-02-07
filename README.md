@@ -1,5 +1,6 @@
 # Confluent Cloud Registry Action
 
+[![License](http://img.shields.io/:license-Apache%202-blue.svg)](LICENSE)
 ![Master Workflow](https://github.com/DivLoic/ccloud-registry-action/workflows/Master%20Workflow/badge.svg)
 [![codecov](https://codecov.io/gh/DivLoic/ccloud-registry-action/branch/master/graph/badge.svg)](https://codecov.io/gh/DivLoic/ccloud-registry-action)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDivLoic%2Fccloud-registry-action.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FDivLoic%2Fccloud-registry-action?ref=badge_shield)
