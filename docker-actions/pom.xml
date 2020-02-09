@@ -355,6 +355,8 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <!-- temporary upload to dockerhub until Github Packages lets us
+                             pull images from public repositories without authentication -->
                         <id>dockerhub-repo</id>
                         <configuration>
                             <to>
@@ -362,7 +364,7 @@
                                     <username>loicmdivad</username>
                                     <password>${dockerhub.password}</password>
                                 </auth>
-                                <image>loicmdivad/cicd-registry-test2</image>
+                                <image>loicmdivad/ccloud-registry-action</image>
                                 <tags>
                                     <tag>latest</tag>
                                     <tag>${project.version}</tag>
