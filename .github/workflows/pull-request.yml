@@ -36,8 +36,3 @@ jobs:
       - name: Maven It Tests
         working-directory: ./docker-actions/
         run: ./mvnw -B integration-test -Dit.only
-
-      - name: Coveralls Notification
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
