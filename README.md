@@ -1,16 +1,16 @@
 # Confluent Cloud Registry Action
 
-[![License](http://img.shields.io/:license-Apache%202-blue.svg)](LICENSE)
 ![Master Workflow](https://github.com/DivLoic/ccloud-registry-action/workflows/Master%20Workflow/badge.svg)
-[![codecov](https://codecov.io/gh/DivLoic/ccloud-registry-action/branch/master/graph/badge.svg)](https://codecov.io/gh/DivLoic/ccloud-registry-action)
+[![Coverage Status](https://coveralls.io/repos/github/DivLoic/ccloud-registry-action/badge.svg?branch=master)](https://coveralls.io/github/DivLoic/ccloud-registry-action?branch=master)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDivLoic%2Fccloud-registry-action.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FDivLoic%2Fccloud-registry-action?ref=badge_shield)
+[![License](http://img.shields.io/:license-Apache%202-blue.svg)](LICENSE)
 
 This Github Action validates the compatibility of your avro schemas against 
 [Confluent Cloud](https://www.confluent.io/confluent-cloud) 
 [Schema Registry](https://github.com/confluentinc/schema-registry). 
 Regard less of your programming language you can use it just by creating the two following files.
 
-`schema.yml` mapping between the schema and subject to validate 
+An `schema.yml` mapping schemas to subjects for validation
 ```yaml
 ---
 schemas:
@@ -19,6 +19,7 @@ schemas:
 # - ...
 ```
 
+A Github Actions specification in the workflow folder (`.github/workflows/*.yml`)
 ```yaml
 uses: divloic/ccloud-registry-action@v0.0.1
 with:
@@ -41,7 +42,7 @@ input                           | description                   | default
 
 ## Outputs
 
-This action has no output yet. It simply log or crashes in case of incompatibilities.
+This action has no output yet. It simply logs or crashes in case of incompatibilities.
 
 ## Example usage
 
@@ -53,8 +54,8 @@ You can find a complete example in this repository:
 - Source Code: [https://github.com/DivLoic/ccloud-registry-action/](https://github.com/DivLoic/ccloud-registry-action/)
 - Issue Tracker: [https://github.com/DivLoic/ccloud-registry-action/issues](https://github.com/DivLoic/ccloud-registry-action/issues)
 
-
 ## Licence
-This project is licensed under [Apache License](LICENSE)
+
+This project is licensed under [Apache License 2.0](LICENSE)
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDivLoic%2Fccloud-registry-action.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FDivLoic%2Fccloud-registry-action?ref=badge_large)
