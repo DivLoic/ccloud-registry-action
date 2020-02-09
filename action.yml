@@ -25,7 +25,7 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://loicmdivad/ccloud-registry-action:%VERSION%'
+  image: 'docker://loicmdivad/ccloud-registry-action:v0.0.1'
   env:
     AVRO_FILES_PATH: ${{ inputs.avro-files-path }}
     AVRO_SUBJECT_YAML: ${{ inputs.avro-subject-yaml }}

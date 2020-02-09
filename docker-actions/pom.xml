@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>fr.xebia.ldi</groupId>
     <artifactId>ccloud-registry-docker-action</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
 
     <developers>
         <developer>
@@ -30,12 +28,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <action.owner/>
-        <target.version/>
-        <coveralls.token/>
-        <dockerhub.password/>
-        <docker.auth.username/>
-        <docker.auth.password/>
+        <action.owner />
+        <target.version />
+        <coveralls.token />
+        <dockerhub.password />
+        <docker.auth.username />
+        <docker.auth.password />
         <docker.url>docker.pkg.github.com</docker.url>
         <docker.repo>${action.owner}/ccloud-registry-action</docker.repo>
         <docker.image.name>${project.artifactId}</docker.image.name>
@@ -62,11 +60,11 @@
         <maven-jacoco-plugin.version>0.8.5</maven-jacoco-plugin.version>
         <maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
 
-        <it.only/>
+        <it.only />
     </properties>
 
     <scm>
-        <tag>HEAD</tag>
+        <tag>v0.0.1</tag>
         <url>https://github.com/${action.owner}/ccloud-registry-action.git</url>
         <connection>scm:git:https://github.com/${action.owner}/ccloud-registry-action.git</connection>
         <developerConnection>scm:git:https://github.com/${action.owner}/ccloud-registry-action.git</developerConnection>
