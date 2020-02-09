@@ -313,7 +313,7 @@
                             <replacements>
                                 <replacement>
                                     <token>%VERSION%</token>
-                                    <value>v${project.version}</value>
+                                    <value>${project.version}</value>
                                 </replacement>
                             </replacements>
                         </configuration>
@@ -324,7 +324,7 @@
                             <file>../action.yml</file>
                             <replacements>
                                 <replacement>
-                                    <token>v${target.version}</token>
+                                    <token>${target.version}</token>
                                     <value>%VERSION%</value>
                                 </replacement>
                             </replacements>
