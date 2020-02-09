@@ -1,7 +1,7 @@
 # Confluent Cloud Registry Action
 
 ![Master Workflow](https://github.com/DivLoic/ccloud-registry-action/workflows/Master%20Workflow/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/DivLoic/ccloud-registry-action/badge.svg?branch=master)](https://coveralls.io/github/DivLoic/ccloud-registry-action?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/DivLoic/ccloud-registry-action/badge.svg)](https://coveralls.io/github/DivLoic/ccloud-registry-action)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDivLoic%2Fccloud-registry-action.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FDivLoic%2Fccloud-registry-action?ref=badge_shield)
 [![License](http://img.shields.io/:license-Apache%202-blue.svg)](LICENSE)
 
