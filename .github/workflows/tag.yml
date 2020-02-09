@@ -1,11 +1,9 @@
-name: Branch Workflow
+name: Tag Workflow
 
 on:
   push:
-    branches-ignore:
-      - 'release/*'
-      - 'wip/**'
-      - 'master'
+    tags:
+      - 'v*'
 
 jobs:
   branch:
@@ -23,7 +21,10 @@ jobs:
 
       - name: Maven Unit Tests
         working-directory: ./docker-actions/
-        run: ./mvnw -B test
+        run: |
+          ./mvnw -B test jacoco:report \
+          coveralls:report -Dcoveralls.token=${{ secrets.COVERALLS_TOKEN }} \
+          -Dbranch=$(echo ${{ github.ref }} | awk -F / '{print $3}')
 
       - name: Maven It Tests
         working-directory: ./docker-actions/

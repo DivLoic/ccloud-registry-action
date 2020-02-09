@@ -30,7 +30,9 @@ jobs:
 
       - name: Maven Unit Tests
         working-directory: ./docker-actions/
-        run: ./mvnw -B test jacoco:report coveralls:report -Dcoveralls.token=${{ secrets.COVERALLS_TOKEN }}
+        run: |
+          ./mvnw -B test jacoco:report \
+          coveralls:report -Dcoveralls.token=${{ secrets.COVERALLS_TOKEN }} -Dbranch=master
 
       - name: Maven It Tests
         working-directory: ./docker-actions/
@@ -47,4 +49,3 @@ jobs:
       - name: Maven Deploy Docker Image (Github Packages)
         working-directory: ./docker-actions/
         run: ./mvnw -B -s ../settings.xml -DskipTests jib:build@github-packages
-
