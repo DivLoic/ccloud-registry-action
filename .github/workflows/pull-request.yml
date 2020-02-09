@@ -31,7 +31,7 @@ jobs:
 
       - name: Maven Unit Tests
         working-directory: ./docker-actions/
-        run: ./mvnw -B test
+        run: ./mvnw -B test jacoco:report coveralls:report -Dcoveralls.token=${{ secrets.COVERALLS_TOKEN }}
 
       - name: Maven It Tests
         working-directory: ./docker-actions/

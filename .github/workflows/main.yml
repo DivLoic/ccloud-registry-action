@@ -19,6 +19,7 @@ jobs:
           CCLOUD_ACTION_TOKEN: ${{ secrets.CCLOUD_ACTION_TOKEN }}
           CCLOUD_ACTION_OWNER: ${{ secrets.CCLOUD_ACTION_OWNER }}
           DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
           export CCLOUD_ACTION_OWNER=$(echo ${{ github.repository }} | awk -F / '{print tolower($1)}')
           envsubst < .github/settings.template.xml > settings.xml
@@ -30,14 +31,7 @@ jobs:
 
       - name: Maven Unit Tests
         working-directory: ./docker-actions/
-        run: ./mvnw -B test
-
-      - uses: codecov/codecov-action@v1.0.5
-        name: Upload test coverage
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./docker-actions/target/site/jacoco/jacoco.xml
-          flags: unittests
+        run: ./mvnw -B test jacoco:report coveralls:report
 
       - name: Maven It Tests
         working-directory: ./docker-actions/
