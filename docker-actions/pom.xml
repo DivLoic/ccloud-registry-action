@@ -32,6 +32,7 @@
 
         <action.owner/>
         <target.version/>
+        <coveralls.token/>
         <dockerhub.password/>
         <docker.auth.username/>
         <docker.auth.password/>
@@ -54,6 +55,7 @@
 
         <jib.plugin.version>1.8.0</jib.plugin.version>
         <buildhelper-maven-plugin.version>3.0.0</buildhelper-maven-plugin.version>
+        <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-replacer-plugin.version>1.5.3</maven-replacer-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
@@ -389,14 +391,16 @@
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>${coveralls-maven-plugin.version}</version>
+                <configuration>
+                    <repoToken>${coveralls.token}</repoToken>
+                </configuration>
             </plugin>
         </plugins>
     </build>
