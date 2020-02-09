@@ -33,7 +33,6 @@ jobs:
           CCLOUD_ACTION_TOKEN: ${{ secrets.CCLOUD_ACTION_TOKEN }}
           CCLOUD_ACTION_OWNER: ${{ secrets.CCLOUD_ACTION_OWNER }}
           DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
           export GITHUB_URL=https://${{ secrets.CCLOUD_ACTION_OWNER }}:${{ secrets.CCLOUD_ACTION_TOKEN }}@github.com
           export TARGET_VERSION=$(echo ${{ github.ref }} | awk -F / '{print $4}')

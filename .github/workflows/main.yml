@@ -19,7 +19,6 @@ jobs:
           CCLOUD_ACTION_TOKEN: ${{ secrets.CCLOUD_ACTION_TOKEN }}
           CCLOUD_ACTION_OWNER: ${{ secrets.CCLOUD_ACTION_OWNER }}
           DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
           export CCLOUD_ACTION_OWNER=$(echo ${{ github.repository }} | awk -F / '{print tolower($1)}')
           envsubst < .github/settings.template.xml > settings.xml
@@ -31,7 +30,7 @@ jobs:
 
       - name: Maven Unit Tests
         working-directory: ./docker-actions/
-        run: ./mvnw -B test jacoco:report coveralls:report
+        run: ./mvnw -B test jacoco:report coveralls:report -Dcoveralls.token=${{ secrets.COVERALLS_TOKEN }}
 
       - name: Maven It Tests
         working-directory: ./docker-actions/

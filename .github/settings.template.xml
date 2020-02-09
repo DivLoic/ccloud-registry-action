@@ -21,7 +21,6 @@
             <properties>
                 <target.version>${TARGET_VERSION}</target.version>
                 <action.owner>${CCLOUD_ACTION_OWNER}</action.owner>
-                <coveralls.token>${COVERALLS_TOKEN}</coveralls.token>
                 <dockerhub.password>${DOCKERHUB_PASSWORD}</dockerhub.password>
                 <docker.auth.username>${CCLOUD_ACTION_OWNER}</docker.auth.username>
                 <docker.auth.password>${CCLOUD_ACTION_TOKEN}</docker.auth.password>
