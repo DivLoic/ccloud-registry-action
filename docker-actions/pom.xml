@@ -4,7 +4,7 @@
 
     <groupId>fr.xebia.ldi</groupId>
     <artifactId>ccloud-registry-docker-action</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
 
     <developers>
         <developer>
@@ -64,7 +64,7 @@
     </properties>
 
     <scm>
-        <tag>v0.0.1</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/${action.owner}/ccloud-registry-action.git</url>
         <connection>scm:git:https://github.com/${action.owner}/ccloud-registry-action.git</connection>
         <developerConnection>scm:git:https://github.com/${action.owner}/ccloud-registry-action.git</developerConnection>
