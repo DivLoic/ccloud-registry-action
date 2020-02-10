@@ -14,7 +14,7 @@ inputs:
     required: false
     default: 'src/main/avro'
   schema-registry-url:
-    description: 'url to the schema-registry'
+    description: 'url of the schema-registry'
     required: true
   schema-registry-api-key:
     description: 'Confluent API key'
