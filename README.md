@@ -8,9 +8,9 @@
 This Github Action validates the compatibility of your avro schemas against 
 [Confluent Cloud](https://www.confluent.io/confluent-cloud) 
 [Schema Registry](https://github.com/confluentinc/schema-registry). 
-Regard less of your programming language you can use it just by creating the two following files.
+Regardless of your programming language you can use it just by creating the two following files.
 
-An `schema.yml` mapping schemas to subjects for validation
+A `schema.yml` mapping schemas to subjects for validation
 ```yaml
 ---
 schemas:
