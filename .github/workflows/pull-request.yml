@@ -18,7 +18,7 @@ jobs:
 
       - name: Prepare Git Operations
         run: |
-          export REMOTE_REPO=${{ github.actor }}/schema-registry-action-test1
+          export REMOTE_REPO=${{ github.actor }}/ccloud-registry-action
           git config --global user.name Github Action
           git config --global user.email octocat@github.com
           git remote add contrib https://github.com/${REMOTE_REPO}.git
