@@ -44,7 +44,7 @@
         <config.version>1.4.0</config.version>
         <junit.version>5.5.2</junit.version>
         <better-monads.version>0.4.1</better-monads.version>
-        <snake-yaml.version>1.25</snake-yaml.version>
+        <snake-yaml.version>1.26</snake-yaml.version>
 
         <hamcrest.version>2.2</hamcrest.version>
         <junit-pioneer.version>0.5.3</junit-pioneer.version>
